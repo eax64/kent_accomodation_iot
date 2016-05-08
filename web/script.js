@@ -195,7 +195,10 @@ var createScene = function() {
 		}
 
 	    }
-	    
+	    g_buildings.colleges.sort();
+	    g_buildings.blocks.sort();
+	    g_buildings.flats.sort();
+	    g_buildings.doors.sort();
 	}
 
 
@@ -218,10 +221,6 @@ var createScene = function() {
     importBlock("Woolf", "A", "A", -25, -193);
     importBlock("Woolf", "B", "A", 38, -193);
 
-    g_buildings.colleges.sort();
-    g_buildings.blocks.sort();
-    g_buildings.flats.sort();
-    g_buildings.doors.sort();
     
     // setTimeout(function() { ResetCamera(); }, 200);
     return scene;
@@ -282,22 +281,47 @@ function moveCamera(cam, newTarget)
     g_camera_target_anim = true;
 }
 
+// function processRawData(data)
+// {
+//     console.log(data)
+    
+//     meshes = g_bla.getMeshesByTags(rawDataToTagStr(data.data.key));
+//     if (meshes[0].matchesTagsQuery(g_iot_devices.dico[data.uuid].selected_lock_rules_str))
+//     {
+// 	hlMesh(meshes[0].name);
+// 	g_iot_logs.add("<strong>A door have been unlocked.</strong><br /><i>" + meshes[0].name + "<br />User key ID: " + data.data.key.uid + "<br />Device: #" + data.uuid + "</i>", "success");
+//     }
+//     else
+//     {
+// 	hlMesh(meshes[0].name, new BABYLON.Color3(0.5, 0, 0));
+// 	g_iot_logs.add("<strong>Failed attempt to open a door.</strong><br /><i>" + meshes[0].name + "<br />User key ID: " + data.data.key.uid + "<br />Device: #" + data.uuid + "</i>", "danger");
+//     }
+// }
+
 function processRawData(data)
 {
     console.log(data)
+
     
-    meshes = g_bla.getMeshesByTags(rawDataToTagStr(data.data.key));
-    if (meshes[0].matchesTagsQuery(g_iot_devices.dico[data.uuid].selected_lock_rules_str))
+    var meshes_key = g_bla.getMeshesByTags(rawDataToTagStr(data.data.key));
+    if (meshes_key[0].matchesTagsQuery(g_iot_devices.dico[data.uuid].selected_lock_rules_str))
     {
-	hlMesh(meshes[0].name);
-	g_iot_logs.add("<strong>A door have been unlocked.</strong><br /><i>" + meshes[0].name + "<br />User key ID: " + data.data.key.uid + "<br />Device: #" + data.uuid + "</i>", "success");
+	hlMesh(meshes_key[0].name);
+	g_iot_logs.add("<strong>A door have been unlocked.</strong><br /><i>" + meshes_key[0].name + "<br />User key ID: " + data.data.key.uid + "<br />Device: #" + data.uuid + "</i>", "success");
     }
     else
     {
-	hlMesh(meshes[0].name, new BABYLON.Color3(0.5, 0, 0));
-	g_iot_logs.add("<strong>Failed attempt to open a door.</strong><br /><i>" + meshes[0].name + "<br />User key ID: " + data.data.key.uid + "<br />Device: #" + data.uuid + "</i>", "danger");
+	var meshes = g_iot_devices.dico[data.uuid].selected_lock;
+	for (var i = 0 ; i < meshes.length ; i++)
+	{
+	    //hlMesh(g_bla.getMeshesByTags(tag)[i].name);
+	    hlMesh(meshes[i].name, new BABYLON.Color3(0.5, 0, 0));
+	}
+
+	g_iot_logs.add("<strong>Failed attempt to open a door.</strong><br /><i>" + meshes_key[0].name + "<br />User key ID: " + data.data.key.uid + "<br />Device: #" + data.uuid + "</i>", "danger");
     }
 }
+
 
 function hlMeshByTag(tag)
 {
@@ -377,11 +401,23 @@ function hlMesh(mesh_name, color)
     }, 5000);
 }
 
+// function rawDataToTagStr(obj)
+// {
+//     block_translate = "ABCDEFGHIJ";
+    
+//     return "Block_" + block_translate[obj.block - 1] + "&&" + "Door_" + obj.door;
+// }
+
 function rawDataToTagStr(obj)
 {
-    block_translate = "ABCDEFGHIJ";
+    var block_translate = "ABCDEFGHIJ";
+    var college_translate = {7:"Woolf"};
+
+    college = (obj.college in college_translate) ? "College_" + college_translate[obj.college] + "&&": "";
     
-    return "Block_" + block_translate[obj.block - 1] + "&&" + "Door_" + obj.door;
+    ret =  college + "Block_" + block_translate[obj.block - 1] + "&&" + "Door_" + obj.door;
+    console.log(ret);
+    return ret;
 }
 
 function fbla()
@@ -439,26 +475,26 @@ Iot_Device.prototype.handleSelectedShow = function(event)
     console.log("bla2");
 
     for (var i = 0 ; i < event.data.obj.selected_lock.length ; i++)
-	hlMesh(event.data.obj.selected_lock[i].name);
+	hlMesh(event.data.obj.selected_lock[i].name, new BABYLON.Color3(0, 0, 0.5));
 
 };
 
-Iot_Device.prototype.getLockRules = function()
-{
-    // var tr_college = {"Woolf": 5}
-    // var tr_block = {"A": 1,"B": 2,"C": 3,"D": 4,"E": 5,"F": 6,"G": 7,"H": 8}
+// Iot_Device.prototype.getLockRules = function()
+// {
+//     var tr_college = {"Woolf": 7}
+//     var tr_block = {"A": 1,"B": 2,"C": 3,"D": 4,"E": 5,"F": 6,"G": 7,"H": 8}
 
-    ret = {};
-    ret.colleges = (this.selected_lock_rules.colleges in tr_college) ? tr_college[this.selected_lock_rules.colleges] : 0
-    ret.blocks = (this.selected_lock_rules.blocks in tr_block) ? tr_block[this.selected_lock_rules.blocks] : 0
-    ret.flats = (parseInt(this.selected_lock_rules.flats, 10) == this.selected_lock_rules.flats) ? parseInt(this.selected_lock_rules.flats, 10) : 0
-    ret.doors = (parseInt(this.selected_lock_rules.doors, 10) == this.selected_lock_rules.doors) ? parseInt(this.selected_lock_rules.doors, 10) : 0
-    return ret;
-};
+//     ret = {};
+//     ret.colleges = (this.selected_lock_rules.colleges in tr_college) ? tr_college[this.selected_lock_rules.colleges] : 0
+//     ret.blocks = (this.selected_lock_rules.blocks in tr_block) ? tr_block[this.selected_lock_rules.blocks] : 0
+//     ret.flats = (parseInt(this.selected_lock_rules.flats, 10) == this.selected_lock_rules.flats) ? parseInt(this.selected_lock_rules.flats, 10) : 0
+//     ret.doors = (parseInt(this.selected_lock_rules.doors, 10) == this.selected_lock_rules.doors) ? parseInt(this.selected_lock_rules.doors, 10) : 0
+//     return ret;
+// };
 
 Iot_Device.prototype.updateSelectedLocks = function(event)
 {
-    //this.selected_lock =
+
     var rules = []
     if (this.selected_lock_rules.colleges != "*")
 	rules.push("College_" + this.selected_lock_rules.colleges);
