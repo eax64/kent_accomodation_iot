@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
+    <title>IOT assessment 5</title>
+    
+    <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css">
+    <script src="./jquery.js"></script>
+    <script src="./bootstrap/js/bootstrap.min.js"></script>
+    <script src="babylon.js"></script>
+    <script src="./script.js"></script>
+    <script src="./paho.js/mqttws31-min.js"></script>
+    <script src="./cli.js"></script>
+    <style>
+    html, body {
+        overflow: hidden;
+        width   : 100%;
+        height  : 100%;
+        margin  : 0;
+        padding : 0;
+    }
+
+    #renderCanvas {
+        width   : 100%;
+        height  : 100%;
+        touch-action: none;
+    }
+    #infobox
+    {
+    position: fixed;
+    padding: 10px;
+    width: 390px;
+    height: 500px;
+    left: 10px;
+    top: 10px;
+    z-index: 2;
+    overflow: visible;
+    background-color: rgba(255,255,255,0.1);
+    }
+
+    .template
+    {
+    display: none;
+    }
+
+    .dropdown
+    {
+    float: left;
+    }
+    
+
+    .dropdown-toggle hr
+    {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    }
+
+    #event-log
+    {
+    height: 300px;
+    overflow-y: auto;
+    }
+
+
+</style>
+</head>
+<body>
+  
+  <div id="infobox">
+    FPS: <span id="fpsCounter"></span><br/ >
+      Rotation: <input type="checkbox" id="cb_rotation" checked/><br />
+      Shadow: <input type="checkbox" id="cb_shadow"/>
+      <hr />
+      
+      <div class="panel-group" id="accordion">
+	<div class="panel panel-default template">
+	  <div class="panel-heading">
+	    <h4 class="panel-title">
+              <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+		Template
+              </a>
+	    </h4>
+	  </div>
+	  <div id="collapseThree" class="panel-collapse collapse">
+	    <div class="panel-body">
+	      
+	      <div class="panel panel-default">
+		<div class="panel-heading">Lock selected</div>
+		<div class="panel-body lst-dropdown">
+		  
+		  <div class="dropdown template">
+		    <button class="btn btn-default dropdown-toggle build-template" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+		      <span class="title">Template</span>
+		      <span class="caret"></span>
+		      <hr>
+		      <span class="title-content">_</span>
+		    </button>
+		    <ul class="dropdown-menu build-template" aria-labelledby="dropdownMenu1">
+		      <li><a href="#">*</a></li>
+		    </ul>
+		  </div>
+		  
+		</div>
+	      </div>
+	      
+	    </br>
+	    Matching locks: <span class="selected-lock-cnt">0</span><span> <a class="selected-lock-show" href="#">(show)</a></span>
+	    
+	    </div>
+	  </div>
+	</div>
+      </div>
+      
+      <hr>
+      <div id="event-log">
+	
+	
+	<div class="panel-group" id="accordion">
+	  <div class="panel panel-default">
+	    <div class="panel-heading">
+	      <h4 class="panel-title">
+		<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#logCollapse">
+		  Logs
+		</a>
+	      </h4>
+	    </div>
+	    
+	    
+	    <div id="logCollapse" class="panel-collapse collapse in">
+	      <ul class="list-group">
+		<li class="list-group-item template"></li>
+	      </ul>
+	      
+	    </div>
+	  </div>
+	</div>
+      </div>
+  </div>
+  <canvas id="renderCanvas"></canvas>
+  
+</body>
+</html>
