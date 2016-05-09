@@ -2,7 +2,7 @@
 
 
 // Create a client instance
-client = new Paho.MQTT.Client("ws://127.0.0.1:9001/", "clientId");
+client = new Paho.MQTT.Client("ws://" + location.hostname + ":9001/", "clientId");
 
 // set callback handlers
 client.onConnectionLost = onConnectionLost;
