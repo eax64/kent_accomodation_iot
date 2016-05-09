@@ -453,8 +453,7 @@ Iot_Device.prototype.ping = function()
 Iot_Device.prototype.getLag = function()
 {
     var lag = (new Date().getTime()/1000) - this.last_ping - this.ping_delay;
-    // if (lag > this.ping_delay)
-    if (lag > 0)
+    if (lag > this.ping_delay)
     	return Math.round(lag);
     return 0;
 };
