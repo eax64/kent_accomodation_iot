@@ -1,5 +1,6 @@
 
 // BUG: (2) concurrency transp on animation
+// BUG: multiple devices
 
 window.addEventListener('DOMContentLoaded', function() {
     init();
@@ -302,23 +303,25 @@ function processRawData(data)
 {
     console.log(data)
 
-    
+    if (!(data.uuid in g_iot_devices.dico))
+	g_iot_devices.add(data.uuid);
     var meshes_key = g_bla.getMeshesByTags(rawDataToTagStr(data.data.key));
     if (meshes_key[0].matchesTagsQuery(g_iot_devices.dico[data.uuid].selected_lock_rules_str))
     {
 	hlMesh(meshes_key[0].name);
 	g_iot_logs.add("<strong>A door have been unlocked.</strong><br /><i>" + meshes_key[0].name + "<br />User key ID: " + data.data.key.uid + "<br />Device: #" + data.uuid + "</i>", "success");
+	lockAuthentication(true);
     }
     else
     {
 	var meshes = g_iot_devices.dico[data.uuid].selected_lock;
 	for (var i = 0 ; i < meshes.length ; i++)
 	{
-	    //hlMesh(g_bla.getMeshesByTags(tag)[i].name);
 	    hlMesh(meshes[i].name, new BABYLON.Color3(0.5, 0, 0));
-	}
 
+	}
 	g_iot_logs.add("<strong>Failed attempt to open a door.</strong><br /><i>" + meshes_key[0].name + "<br />User key ID: " + data.data.key.uid + "<br />Device: #" + data.uuid + "</i>", "danger");
+	lockAuthentication(false);
     }
 }
 
@@ -439,6 +442,7 @@ function Iot_Device(uuid)
     this.uuid = uuid;
     this.last_ping = 0;
     this.ping_delay = 5;
+    this.had_lag = false;
     this.dom = null;
     this.selected_lock_rules = {"colleges":"*", "blocks":"*", "flats":"*", "doors":"*"}
     this.selected_lock_rules_str = "";
@@ -590,12 +594,16 @@ Iot_Device_Collection.prototype.display = function()
 {
     for (var i = 0; i < this.list.length ; i++)
     {
-	lag = "";
+	lag = this.list[i].getLag();
 	// console.log(this.list[i]);
-	if (this.list[i].getLag() > 0)
+	if (lag > 0)
 	{
-	    lag = this.list[i].getLag();
+	    this.list[i].had_lag = true;
 	    this.list[i].dom.find(".accordion-toggle").attr("href",  "#" + this.list[i].uuid).html("Device #" + this.list[i].uuid + '&nbsp;<span class="badge">Lag: '+lag+'s</span>');
+	}
+	else if (this.list[i].had_lag)
+	{
+	    this.list[i].dom.find(".accordion-toggle").attr("href",  "#" + this.list[i].uuid).html("Device #" + this.list[i].uuid);
 	}
 	//console.log("Device nb " + i + " : " + this.list[i].uuid + " " + lag);
 	//$("#iotDevices").text(this.list[i].uuid + " " + lag);

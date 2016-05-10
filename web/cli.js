@@ -43,6 +43,18 @@ function onMessageArrived(message) {
 
 }
 
+function lockAuthentication(value)
+{
+    var data = {"cmd": "accessAuthentication"};
+
+    data.data = value;
+    
+    msg = new Paho.MQTT.Message(JSON.stringify(data));
+    msg.destinationName = "/door";
+    client.send(msg);
+    
+}
+
 function parse_mqtt(obj)
 {
     if (obj.cmd == "hl")
