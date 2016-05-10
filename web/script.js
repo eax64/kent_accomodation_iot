@@ -310,7 +310,7 @@ function processRawData(data)
     {
 	hlMesh(meshes_key[0].name);
 	g_iot_logs.add("<strong>A door have been unlocked.</strong><br /><i>" + meshes_key[0].name + "<br />User key ID: " + data.data.key.uid + "<br />Device: #" + data.uuid + "</i>", "success");
-	lockAuthentication(true);
+	lockAuthentication(true, data.uuid);
     }
     else
     {
@@ -321,7 +321,7 @@ function processRawData(data)
 
 	}
 	g_iot_logs.add("<strong>Failed attempt to open a door.</strong><br /><i>" + meshes_key[0].name + "<br />User key ID: " + data.data.key.uid + "<br />Device: #" + data.uuid + "</i>", "danger");
-	lockAuthentication(false);
+	lockAuthentication(false, data.uuid);
     }
 }
 

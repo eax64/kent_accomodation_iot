@@ -43,14 +43,14 @@ function onMessageArrived(message) {
 
 }
 
-function lockAuthentication(value)
+function lockAuthentication(value, uuid)
 {
     var data = {"cmd": "accessAuthentication"};
 
     data.data = value;
     
     msg = new Paho.MQTT.Message(JSON.stringify(data));
-    msg.destinationName = "/door";
+    msg.destinationName = uuid;
     client.send(msg);
     
 }
